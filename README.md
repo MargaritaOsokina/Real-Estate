@@ -92,7 +92,7 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 
 ### Примеры визуализаций
 
-![Correlation Matrix](images/correlation_matrix.png)
+![Correlation Matrix](main/correlation_matrix.png)
 
 ![Feature Histograms](images/feature_histograms.png)
 
