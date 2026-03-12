@@ -92,9 +92,10 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 
 ### Примеры визуализаций
 
-![Correlation Matrix](main/correlation_matrix.png)
+![Correlation Matrix](correlation_matrix.png)
 
-![Feature Histograms](images/feature_histograms.png)
+![Feature Histograms](feature_histograms.png)
+
 
 ---
 
@@ -134,7 +135,8 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 4. Current Ratio  
 5. Revenue Growth  
 
-![Feature Importance](images/feature_importance.png)
+![Feature Importance](feature_importance.png)
+![ROC Curve](roc_curve.png)
 
 ---
 
