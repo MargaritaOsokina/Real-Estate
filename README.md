@@ -16,12 +16,18 @@
 
 Используются следующие типы данных:
 
-- показатели баланса
-- показатели отчета о прибылях и убытках
-- показатели денежных потоков
-- рыночные показатели
+- показатели баланса  
+- показатели отчета о прибылях и убытках  
+- показатели денежных потоков  
+- рыночные показатели  
 
 Каждое наблюдение представляет собой **компания–год**.
+
+В проекте используются:
+
+- обучающий датасет (train)
+- тестовый датасет (test)
+- объединённый датасет с прогнозами
 
 ---
 
@@ -72,7 +78,7 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 На этапе подготовки данных были выполнены следующие шаги:
 
 - преобразование финансовых показателей в числовой формат  
-- удаление наблюдений с пропущенными значениями  
+- удаление пропусков  
 - ограничение выбросов  
 - расчет финансовых коэффициентов  
 - формирование индикатора финансового дистресса  
@@ -86,16 +92,14 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 
 Были выполнены:
 
-- анализ распределений финансовых коэффициентов
-- корреляционный анализ
-- сравнение distressed и non-distressed компаний
+- анализ распределений финансовых коэффициентов  
+- корреляционный анализ  
+- сравнение distressed и non-distressed компаний  
 
 ### Примеры визуализаций
 
-![Correlation Matrix](correlation_matrix.png)
-
-![Feature Histograms](feature_histograms.png)
-
+![Correlation Matrix](images/correlation_matrix.png)  
+![Feature Histograms](images/feature_histograms.png)
 
 ---
 
@@ -108,8 +112,8 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 
 Качество моделей оценивалось с использованием:
 
-- **F1-score**
-- **ROC-AUC**
+- **F1-score**  
+- **ROC-AUC**  
 - **матрицы ошибок**
 
 ---
@@ -125,6 +129,48 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 
 ---
 
+## Анализ ошибок модели
+
+Матрица ошибок:
+
+```
+[[623  47]
+ [  9  62]]
+```
+
+где:
+
+- **True Negatives (TN)** = 623  
+- **False Positives (Ошибка I рода)** = 47  
+- **False Negatives (Ошибка II рода)** = 9  
+- **True Positives (TP)** = 62  
+
+### Интерпретация
+
+**Ошибка I рода (False Positive)**  
+Модель предсказывает дистресс, хотя его нет.
+
+- уровень ошибки: **~7%**
+- интерпретация: ложная тревога
+
+---
+
+**Ошибка II рода (False Negative)**  
+Модель не выявляет дистресс, хотя он есть.
+
+- уровень ошибки: **~12.7%**
+- интерпретация: пропуск проблемной компании
+
+---
+
+### Вывод
+
+- модель лучше выявляет устойчивые компании  
+- при этом достаточно эффективно обнаруживает distressed компании  
+- баланс ошибок достигается за счёт подбора threshold  
+
+---
+
 ## Важность признаков
 
 Наиболее значимые предикторы:
@@ -135,120 +181,60 @@ Revenue_Growth = (Revenue_t − Revenue_{t-1}) / Revenue_{t-1}
 4. Current Ratio  
 5. Revenue Growth  
 
-![Feature Importance](feature_importance.png)
-![ROC Curve](roc_curve.png)
+![Feature Importance](images/feature_importance.png)  
+![ROC Curve](images/roc_curve.png)
+
+---
+
+## Применение модели к тестовым данным
+
+Обученная модель была применена к тестовому датасету.
+
+Для тестовых данных были выполнены:
+
+- те же преобразования признаков  
+- расчет финансовых коэффициентов  
+- формирование входных признаков  
+
+В результате получены:
+
+- вероятность финансового дистресса  
+- бинарный прогноз  
+
+---
+
+## Итоговые датасеты
+
+В рамках проекта сформированы:
+
+- `real_estate_distress_panel_predictions.csv` — обучающий датасет  
+- `real_estate_distress_panel_predictions_test.csv` — тестовый датасет  
+- `real_estate_distress_predictions_full.xlsx` — объединённый датасет  
+
+---
+
+## Компании с наибольшей вероятностью дистресса
+
+| Company Name | Exchange:Ticker | Geographic Locations | Primary Industry | Year | Forecast_Year | Distress_Probability |
+|:------------|:----------------|:--------------------|:-----------------|-----:|--------------:|---------------------:|
+| NexPoint Residential Trust, Inc. (NYSE:NXRT) | NYSE:NXRT | United States and Canada (Primary) | Multi-Family Residential REITs | 2021 | 2022 | 0.988701 |
+| Apartment Investment and Management Company (NYSE:AIV) | NYSE:AIV | United States and Canada (Primary) | Multi-Family Residential REITs | 2021 | 2022 | 0.986731 |
+| Kennedy-Wilson Holdings, Inc. (NYSE:KW) | NYSE:KW | United States and Canada (Primary) | Real Estate Operating Companies | 2018 | 2019 | 0.979187 |
+| StorageVault Canada Inc. (TSX:SVI) | TSX:SVI | United States and Canada (Primary) | Real Estate Operating Companies | 2020 | 2021 | 0.977775 |
+| Diversified Healthcare Trust (NasdaqGS:DHC) | NasdaqGS:DHC | United States and Canada (Primary) | Health Care REITs | 2021 | 2022 | 0.972639 |
 
 ---
 
 ## Выводы
 
-Результаты показывают, что финансовые коэффициенты обладают высокой прогностической силой при прогнозировании финансового дистресса компаний сектора недвижимости.
+Результаты показывают, что финансовые коэффициенты обладают высокой прогностической силой при прогнозировании финансового дистресса.
 
-Наиболее важными факторами являются показатели прибыльности, операционных денежных потоков и способности обслуживать долговые обязательства.
+Ключевые выводы:
 
-
-| Company Name                                           | Exchange:Ticker    | Geographic Locations               | Primary Industry                |   Year |   Forecast_Year |   Distress_Probability |
-|:-------------------------------------------------------|:-------------------|:-----------------------------------|:--------------------------------|-------:|----------------:|-----------------------:|
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2021 |            2022 |               0.988701 |
-| Apartment Investment and Management Company (NYSE:AIV) | NYSE:AIV           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2021 |            2022 |               0.986731 |
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2017 |            2018 |               0.981681 |
-| Apartment Investment and Management Company (NYSE:AIV) | NYSE:AIV           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2020 |            2021 |               0.98054  |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2018 |            2019 |               0.979187 |
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2019 |            2020 |               0.978565 |
-| StorageVault Canada Inc. (TSX:SVI)                     | TSX:SVI            | United States and Canada (Primary) | Real Estate Operating Companies |   2020 |            2021 |               0.977775 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2017 |            2018 |               0.977529 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2016 |            2017 |               0.976474 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2024 |            2025 |               0.976052 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2023 |            2024 |               0.975912 |
-| Veris Residential, Inc. (NYSE:VRE)                     | NYSE:VRE           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2020 |            2021 |               0.974307 |
-| Global Net Lease, Inc. (NYSE:GNL)                      | NYSE:GNL           | United States and Canada (Primary) | Diversified REITs               |   2023 |            2024 |               0.972819 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2020 |            2021 |               0.972784 |
-| Diversified Healthcare Trust (NasdaqGS:DHC)            | NasdaqGS:DHC       | United States and Canada (Primary) | Health Care REITs               |   2021 |            2022 |               0.972639 |
-| Diversified Healthcare Trust (NasdaqGS:DHC)            | NasdaqGS:DHC       | United States and Canada (Primary) | Health Care REITs               |   2024 |            2025 |               0.972064 |
-| JLL Income Property Trust, Inc. (MutualFund:ZIPT.MX)   | MutualFund:ZIPT.MX | United States and Canada (Primary) | Diversified REITs               |   2022 |            2023 |               0.971936 |
-| StorageVault Canada Inc. (TSX:SVI)                     | TSX:SVI            | United States and Canada (Primary) | Real Estate Operating Companies |   2019 |            2020 |               0.970522 |
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2020 |            2021 |               0.970359 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2022 |            2023 |               0.969777 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2015 |            2016 |               0.969536 |
-| Diversified Healthcare Trust (NasdaqGS:DHC)            | NasdaqGS:DHC       | United States and Canada (Primary) | Health Care REITs               |   2022 |            2023 |               0.969172 |
-| StorageVault Canada Inc. (TSX:SVI)                     | TSX:SVI            | United States and Canada (Primary) | Real Estate Operating Companies |   2021 |            2022 |               0.96896  |
-| Diversified Healthcare Trust (NasdaqGS:DHC)            | NasdaqGS:DHC       | United States and Canada (Primary) | Health Care REITs               |   2023 |            2024 |               0.968247 |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2019 |            2020 |               0.968148 |
-| Invitation Homes Inc. (NYSE:INVH)                      | NYSE:INVH          | United States and Canada (Primary) | Single-Family Residential REITs |   2017 |            2018 |               0.968027 |
-| JBG SMITH Properties (NYSE:JBGS)                       | NYSE:JBGS          | United States and Canada (Primary) | Office REITs                    |   2024 |            2025 |               0.967977 |
-| SL Green Realty Corp. (NYSE:SLG)                       | NYSE:SLG           | United States and Canada (Primary) | Office REITs                    |   2023 |            2024 |               0.967372 |
-| Veris Residential, Inc. (NYSE:VRE)                     | NYSE:VRE           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2019 |            2020 |               0.967139 |
-| Invitation Homes Inc. (NYSE:INVH)                      | NYSE:INVH          | United States and Canada (Primary) | Single-Family Residential REITs |   2015 |            2016 |               0.96696  |
-| JBG SMITH Properties (NYSE:JBGS)                       | NYSE:JBGS          | United States and Canada (Primary) | Office REITs                    |   2023 |            2024 |               0.966029 |
-| SL Green Realty Corp. (NYSE:SLG)                       | NYSE:SLG           | United States and Canada (Primary) | Office REITs                    |   2024 |            2025 |               0.964407 |
-| Phillips Edison & Company, Inc. (NasdaqGS:PECO)        | NasdaqGS:PECO      | United States and Canada (Primary) | Retail REITs                    |   2017 |            2018 |               0.96423  |
-| Kennedy-Wilson Holdings, Inc. (NYSE:KW)                | NYSE:KW            | United States and Canada (Primary) | Real Estate Operating Companies |   2021 |            2022 |               0.964194 |
-| Peakstone Realty Trust (NYSE:PKST)                     | NYSE:PKST          | United States and Canada (Primary) | Office REITs                    |   2024 |            2025 |               0.96184  |
-| StorageVault Canada Inc. (TSX:SVI)                     | TSX:SVI            | United States and Canada (Primary) | Real Estate Operating Companies |   2018 |            2019 |               0.957252 |
-| StorageVault Canada Inc. (TSX:SVI)                     | TSX:SVI            | United States and Canada (Primary) | Real Estate Operating Companies |   2017 |            2018 |               0.95589  |
-| Veris Residential, Inc. (NYSE:VRE)                     | NYSE:VRE           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2022 |            2023 |               0.954698 |
-| SmartStop Self Storage REIT, Inc. (NYSE:SMA)           | NYSE:SMA           | United States and Canada (Primary) | Self-Storage REITs              |   2019 |            2020 |               0.954516 |
-| Acadia Realty Trust (NYSE:AKR)                         | NYSE:AKR           | United States and Canada (Primary) | Retail REITs                    |   2023 |            2024 |               0.954183 |
-| Hines Global Income Trust, Inc. (MutualFund:ZHGI.DX)   | MutualFund:ZHGI.DX | United States and Canada (Primary) | Diversified REITs               |   2021 |            2022 |               0.95404  |
-| Ryman Hospitality Properties, Inc. (NYSE:RHP)          | NYSE:RHP           | United States and Canada (Primary) | Hotel and Resort REITs          |   2020 |            2021 |               0.95346  |
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2015 |            2016 |               0.952658 |
-| Centerspace (NYSE:CSR)                                 | NYSE:CSR           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2020 |            2021 |               0.952623 |
-| StorageVault Canada Inc. (TSX:SVI)                     | TSX:SVI            | United States and Canada (Primary) | Real Estate Operating Companies |   2015 |            2016 |               0.952527 |
-| Veris Residential, Inc. (NYSE:VRE)                     | NYSE:VRE           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2021 |            2022 |               0.951702 |
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2018 |            2019 |               0.950846 |
-| Hines Global Income Trust, Inc. (MutualFund:ZHGI.DX)   | MutualFund:ZHGI.DX | United States and Canada (Primary) | Diversified REITs               |   2019 |            2020 |               0.950832 |
-| Park Hotels & Resorts Inc. (NYSE:PK)                   | NYSE:PK            | United States and Canada (Primary) | Hotel and Resort REITs          |   2020 |            2021 |               0.949654 |
-| EPR Properties (NYSE:EPR)                              | NYSE:EPR           | United States and Canada (Primary) | Other Specialized REITs         |   2020 |            2021 |               0.949639 |
-| Apartment Investment and Management Company (NYSE:AIV) | NYSE:AIV           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2024 |            2025 |               0.949378 |
-| Apartment Investment and Management Company (NYSE:AIV) | NYSE:AIV           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2023 |            2024 |               0.949186 |
-| American Healthcare REIT, Inc. (NYSE:AHR)              | NYSE:AHR           | United States and Canada (Primary) | Health Care REITs               |   2022 |            2023 |               0.949031 |
-| Veris Residential, Inc. (NYSE:VRE)                     | NYSE:VRE           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2018 |            2019 |               0.94836  |
-| The Macerich Company (NYSE:MAC)                        | NYSE:MAC           | United States and Canada (Primary) | Retail REITs                    |   2020 |            2021 |               0.947794 |
-| Acadia Realty Trust (NYSE:AKR)                         | NYSE:AKR           | United States and Canada (Primary) | Retail REITs                    |   2020 |            2021 |               0.947403 |
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2022 |            2023 |               0.946282 |
-| American Healthcare REIT, Inc. (NYSE:AHR)              | NYSE:AHR           | United States and Canada (Primary) | Health Care REITs               |   2021 |            2022 |               0.946059 |
-| Park Hotels & Resorts Inc. (NYSE:PK)                   | NYSE:PK            | United States and Canada (Primary) | Hotel and Resort REITs          |   2021 |            2022 |               0.945537 |
-| Acadia Realty Trust (NYSE:AKR)                         | NYSE:AKR           | United States and Canada (Primary) | Retail REITs                    |   2018 |            2019 |               0.945318 |
-| RLJ Lodging Trust (NYSE:RLJ)                           | NYSE:RLJ           | United States and Canada (Primary) | Hotel and Resort REITs          |   2020 |            2021 |               0.944875 |
-| StorageVault Canada Inc. (TSX:SVI)                     | TSX:SVI            | United States and Canada (Primary) | Real Estate Operating Companies |   2016 |            2017 |               0.944763 |
-| Ryman Hospitality Properties, Inc. (NYSE:RHP)          | NYSE:RHP           | United States and Canada (Primary) | Hotel and Resort REITs          |   2021 |            2022 |               0.944462 |
-| Phillips Edison & Company, Inc. (NasdaqGS:PECO)        | NasdaqGS:PECO      | United States and Canada (Primary) | Retail REITs                    |   2018 |            2019 |               0.944015 |
-| Acadia Realty Trust (NYSE:AKR)                         | NYSE:AKR           | United States and Canada (Primary) | Retail REITs                    |   2021 |            2022 |               0.943638 |
-| Veris Residential, Inc. (NYSE:VRE)                     | NYSE:VRE           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2023 |            2024 |               0.942648 |
-| Hines Global Income Trust, Inc. (MutualFund:ZHGI.DX)   | MutualFund:ZHGI.DX | United States and Canada (Primary) | Diversified REITs               |   2017 |            2018 |               0.94219  |
-| JBG SMITH Properties (NYSE:JBGS)                       | NYSE:JBGS          | United States and Canada (Primary) | Office REITs                    |   2020 |            2021 |               0.942022 |
-| Hines Global Income Trust, Inc. (MutualFund:ZHGI.DX)   | MutualFund:ZHGI.DX | United States and Canada (Primary) | Diversified REITs               |   2018 |            2019 |               0.941695 |
-| Host Hotels & Resorts, Inc. (NasdaqGS:HST)             | NasdaqGS:HST       | United States and Canada (Primary) | Hotel and Resort REITs          |   2020 |            2021 |               0.941551 |
-| Centerspace (NYSE:CSR)                                 | NYSE:CSR           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2024 |            2025 |               0.939636 |
-| Acadia Realty Trust (NYSE:AKR)                         | NYSE:AKR           | United States and Canada (Primary) | Retail REITs                    |   2022 |            2023 |               0.939166 |
-| Hines Global Income Trust, Inc. (MutualFund:ZHGI.DX)   | MutualFund:ZHGI.DX | United States and Canada (Primary) | Diversified REITs               |   2016 |            2017 |               0.938842 |
-| Postal Realty Trust, Inc. (NYSE:PSTL)                  | NYSE:PSTL          | United States and Canada (Primary) | Office REITs                    |   2019 |            2020 |               0.936503 |
-| CIM Real Estate Finance Trust, Inc. (OTCPK:CMRF)       | OTCPK:CMRF         | United States and Canada (Primary) | Retail REITs                    |   2024 |            2025 |               0.936239 |
-| RLJ Lodging Trust (NYSE:RLJ)                           | NYSE:RLJ           | United States and Canada (Primary) | Hotel and Resort REITs          |   2021 |            2022 |               0.935966 |
-| Xenia Hotels & Resorts, Inc. (NYSE:XHR)                | NYSE:XHR           | United States and Canada (Primary) | Hotel and Resort REITs          |   2020 |            2021 |               0.93448  |
-| JBG SMITH Properties (NYSE:JBGS)                       | NYSE:JBGS          | United States and Canada (Primary) | Office REITs                    |   2021 |            2022 |               0.934181 |
-| American Healthcare REIT, Inc. (NYSE:AHR)              | NYSE:AHR           | United States and Canada (Primary) | Health Care REITs               |   2020 |            2021 |               0.934125 |
-| Pebblebrook Hotel Trust (NYSE:PEB)                     | NYSE:PEB           | United States and Canada (Primary) | Hotel and Resort REITs          |   2021 |            2022 |               0.93404  |
-| Medical Properties Trust, Inc. (NYSE:MPT)              | NYSE:MPT           | United States and Canada (Primary) | Health Care REITs               |   2023 |            2024 |               0.933797 |
-| Veris Residential, Inc. (NYSE:VRE)                     | NYSE:VRE           | United States and Canada (Primary) | Multi-Family Residential REITs  |   2024 |            2025 |               0.933268 |
-| Kite Realty Group Trust (NYSE:KRG)                     | NYSE:KRG           | United States and Canada (Primary) | Retail REITs                    |   2020 |            2021 |               0.932525 |
-| Peakstone Realty Trust (NYSE:PKST)                     | NYSE:PKST          | United States and Canada (Primary) | Office REITs                    |   2023 |            2024 |               0.93157  |
-| OUTFRONT Media Inc. (NYSE:OUT)                         | NYSE:OUT           | United States and Canada (Primary) | Other Specialized REITs         |   2020 |            2021 |               0.931273 |
-| SmartStop Self Storage REIT, Inc. (NYSE:SMA)           | NYSE:SMA           | United States and Canada (Primary) | Self-Storage REITs              |   2016 |            2017 |               0.931106 |
-| Pebblebrook Hotel Trust (NYSE:PEB)                     | NYSE:PEB           | United States and Canada (Primary) | Hotel and Resort REITs          |   2023 |            2024 |               0.930055 |
-| Shaftesbury Capital PLC (LSE:SHC)                      | LSE:SHC            | United Kingdom (Primary)           | Diversified REITs               |   2020 |            2021 |               0.929797 |
-| Kite Realty Group Trust (NYSE:KRG)                     | NYSE:KRG           | United States and Canada (Primary) | Retail REITs                    |   2021 |            2022 |               0.929323 |
-| JLL Income Property Trust, Inc. (MutualFund:ZIPT.MX)   | MutualFund:ZIPT.MX | United States and Canada (Primary) | Diversified REITs               |   2020 |            2021 |               0.928989 |
-| JBG SMITH Properties (NYSE:JBGS)                       | NYSE:JBGS          | United States and Canada (Primary) | Office REITs                    |   2022 |            2023 |               0.928074 |
-| Xenia Hotels & Resorts, Inc. (NYSE:XHR)                | NYSE:XHR           | United States and Canada (Primary) | Hotel and Resort REITs          |   2021 |            2022 |               0.927238 |
-| Healthcare Realty Trust Incorporated (NYSE:HR)         | NYSE:HR            | United States and Canada (Primary) | Health Care REITs               |   2022 |            2023 |               0.927207 |
-| Pebblebrook Hotel Trust (NYSE:PEB)                     | NYSE:PEB           | United States and Canada (Primary) | Hotel and Resort REITs          |   2024 |            2025 |               0.924533 |
-| Brandywine Realty Trust (NYSE:BDN)                     | NYSE:BDN           | United States and Canada (Primary) | Office REITs                    |   2023 |            2024 |               0.924508 |
-| Hines Global Income Trust, Inc. (MutualFund:ZHGI.DX)   | MutualFund:ZHGI.DX | United States and Canada (Primary) | Diversified REITs               |   2024 |            2025 |               0.924375 |
-| SmartStop Self Storage REIT, Inc. (NYSE:SMA)           | NYSE:SMA           | United States and Canada (Primary) | Self-Storage REITs              |   2017 |            2018 |               0.924352 |
-| NexPoint Residential Trust, Inc. (NYSE:NXRT)           | NYSE:NXRT          | United States and Canada (Primary) | Multi-Family Residential REITs  |   2023 |            2024 |               0.923974 |
-| Vornado Realty Trust (NYSE:VNO)                        | NYSE:VNO           | United States and Canada (Primary) | Office REITs                    |   2020 |            2021 |               0.922906 |
-| Healthcare Realty Trust Incorporated (NYSE:HR)         | NYSE:HR            | United States and Canada (Primary) | Health Care REITs               |   2024 |            2025 |               0.922042 |
+- наибольшее влияние оказывают показатели прибыльности и покрытия процентов  
+- важную роль играют денежные потоки  
+- модель Random Forest существенно превосходит линейные модели  
+- модель успешно применяется к новым (тестовым) данным  
 
 ---
 
@@ -265,6 +251,12 @@ images/
     correlation_matrix.png
     feature_histograms.png
     feature_importance.png
+    roc_curve.png
+
+outputs/
+    real_estate_distress_panel_predictions.csv
+    real_estate_distress_panel_predictions_test.csv
+    real_estate_distress_predictions_full.xlsx
 
 README.md
 ```
